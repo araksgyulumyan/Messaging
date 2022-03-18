@@ -1,4 +1,4 @@
-#Messaging
+# Messaging
 
 This is messaging application which consists of 2 modules:
 ### 1. messaging-service-gateway
