@@ -11,6 +11,8 @@ import com.messaging.gateway.service.message.model.response.CreateMessageRespons
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.function.Function;
+
 @Component
 @RequiredArgsConstructor
 public class MessageApiFacadeImpl implements MessageApiFacade {
@@ -20,8 +22,16 @@ public class MessageApiFacadeImpl implements MessageApiFacade {
 
     @Override
     public CreateMessageRestResponseDto createMessage(CreateMessageRestRequestDto requestDto) {
-        CreateMessageResponse createMessageResponse = messageService.createMessageForChannel(new CreateMessageRequest(requestDto.getChannelName(), requestDto.getMessage()));
+        var createMessageResponse = messageService.createMessageForChannel(f.apply(requestDto));
         slackMessagingServiceClient.sendMessage(new SendMessageClientRequest(requestDto.getChannelName(), requestDto.getMessage()));
         return new CreateMessageRestResponseDto(createMessageResponse.getChannelName(), createMessageResponse.getMessage());
     }
+
+//    private CreateMessageRequest convert(CreateMessageRestRequestDto requestDto) {
+//        return new CreateMessageRequest(requestDto.getChannelName(), requestDto.getMessage());
+//    }
+
+    Function<CreateMessageRestRequestDto, CreateMessageRequest> f = 
+            requestDto -> new CreateMessageRequest(requestDto.getChannelName(), requestDto.getMessage());
+
 }

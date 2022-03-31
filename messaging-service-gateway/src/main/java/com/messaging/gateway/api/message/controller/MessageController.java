@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.Optional;
+import java.util.function.Function;
 
 @RestController
 @RequestMapping(value = "/messages")
@@ -23,7 +25,15 @@ public class MessageController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CreateMessageRestResponseDto> createMessage(@Valid @RequestBody final CreateMessageRestRequestDto createMessageRestRequestDto) {
-        CreateMessageRestResponseDto responseDto = messageApiFacade.createMessage(createMessageRestRequestDto);
+        var responseDto = messageApiFacade.createMessage(createMessageRestRequestDto);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+    }
+
+    public ResponseEntity<CreateMessageRestResponseDto> example(@Valid @RequestBody final CreateMessageRestRequestDto createMessageRestRequestDto) {
+        Function<CreateMessageRestResponseDto, ResponseEntity<CreateMessageRestResponseDto>> mapper =
+                x -> new ResponseEntity<>(x, HttpStatus.CREATED);
+        return Optional.of(messageApiFacade.createMessage(createMessageRestRequestDto))
+                .map(mapper)
+                .get();
     }
 }
